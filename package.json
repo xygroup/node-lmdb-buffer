@@ -1,5 +1,5 @@
 {
-  "name": "node-lmdb",
+  "name": "lmdb",
   "description": "Node binding for LMDB, the Lightning Memory-Mapped Database",
   "author": "Timur Kristóf <venemo@fedoraproject.org>",
   "contributors": ["Erich Ocean <erich@xygroup.co>"],
@@ -13,7 +13,7 @@
   ],
   "repository": "https://github.com/xygroup/node-lmdb",
   "version": "0.4.0",
-  "main": "./build/Release/node-lmdb",
+  "main": "./build/Release/lmdb",
   "gypfile": true,
   "dependencies": {
     "nan": "^2.0.9"
