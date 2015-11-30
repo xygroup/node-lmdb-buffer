@@ -123,7 +123,7 @@ NAN_METHOD(EnvWrap::open) {
     }
 
     // NOTE: MDB_FIXEDMAP is not exposed here since it is "highly experimental" + it is irrelevant for this use case
-    // NOTE: MDB_NOTLS is not exposed here because it is irrelevant for this use case, as node will run all this on a single thread anyway
+    setFlagFromValue(&flags, MDB_NOTLS, "noTLS", true, options);
     setFlagFromValue(&flags, MDB_NOSUBDIR, "noSubdir", false, options);
     setFlagFromValue(&flags, MDB_RDONLY, "readOnly", false, options);
     setFlagFromValue(&flags, MDB_WRITEMAP, "useWritemap", false, options);
