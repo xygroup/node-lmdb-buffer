@@ -200,44 +200,17 @@ NAN_METHOD(CursorWrap::goToRange) {
 }
 
 static void fillDataFromArg1(CursorWrap* cw, Nan::NAN_METHOD_ARGS_TYPE info, MDB_val &data) {
-    if (info[1]->IsString()) {
-        CustomExternalStringResource::writeTo(info[2]->ToString(), &data);
-    }
-    else if (node::Buffer::HasInstance(info[1])) {
-        data.mv_size = node::Buffer::Length(info[2]);
-        data.mv_data = node::Buffer::Data(info[2]);
-    }
-    else if (info[1]->IsNumber()) {
-        data.mv_size = sizeof(double);
-        data.mv_data = new double;
-        *((double*)data.mv_data) = info[1]->ToNumber()->Value();
-    }
-    else if (info[1]->IsBoolean()) {
-        data.mv_size = sizeof(double);
-        data.mv_data = new bool;
-        *((bool*)data.mv_data) = info[1]->ToBoolean()->Value();
-    }
-    else {
-        Nan::ThrowError("Invalid data type.");
+    if (!node::Buffer::HasInstance(info[1])) {
+        Nan::ThrowError("Invalid data type: expected a Buffer instance");
+
+    } else {
+        data.mv_size = node::Buffer::Length(info[1]);
+        data.mv_data = node::Buffer::Data(info[1]);
     }
 }
 
 static void freeDataFromArg1(CursorWrap* cw, Nan::NAN_METHOD_ARGS_TYPE info, MDB_val &data) {
-    if (info[1]->IsString()) {
-        delete[] (uint16_t*)data.mv_data;
-    }
-    else if (node::Buffer::HasInstance(info[1])) {
-        // I think the data is owned by the node::Buffer so we don't need to free it - need to clarify
-    }
-    else if (info[1]->IsNumber()) {
-        delete (double*)data.mv_data;
-    }
-    else if (info[1]->IsBoolean()) {
-        delete (bool*)data.mv_data;
-    }
-    else {
-        Nan::ThrowError("Invalid data type.");
-    }
+    // I think the data is owned by the node::Buffer so we don't need to free it - need to clarify
 }
 
 NAN_METHOD(CursorWrap::goToDup) {

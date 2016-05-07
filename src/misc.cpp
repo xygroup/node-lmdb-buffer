@@ -46,45 +46,19 @@ void setFlagFromValue(int *flags, int flag, const char *name, bool defaultValue,
 }
 
 argtokey_callback_t argToKey(const Handle<Value> &val, MDB_val &key, bool keyIsUint32) {
-    // Check key type
-    if (keyIsUint32 && !val->IsUint32()) {
-        Nan::ThrowError("Invalid key. keyIsUint32 specified on the database, but the given key was not an unsigned 32-bit integer");
-        return nullptr;
-    }
-    if (!keyIsUint32 && !val->IsString()) {
-        Nan::ThrowError("Invalid key. String key expected, because keyIsUint32 isn't specified on the database.");
-        return nullptr;
+    if (!node::Buffer::HasInstance(val)) {
+        return Nan::ThrowError("Invalid arguments: key must be a Buffer.");
     }
 
-    // Handle uint32_t key
-    if (keyIsUint32) {
-        uint32_t *v = new uint32_t;
-        *v = val->Uint32Value();
-
-        key.mv_size = sizeof(uint32_t);
-        key.mv_data = v;
-
-        return ([](MDB_val &key) -> void {
-            delete (uint32_t*)key.mv_data;
-        });
-    }
-
-    // Handle string key
-    CustomExternalStringResource::writeTo(val->ToString(), &key);
-    return ([](MDB_val &key) -> void {
-        delete[] (uint16_t*)key.mv_data;
-    });
+    Local<Object> obj = val->ToObject();
+    key.mv_data = node::Buffer::Data(obj);
+    key.mv_size = node::Buffer::Length(obj);
 
     return nullptr;
 }
 
 Handle<Value> keyToHandle(MDB_val &key, bool keyIsUint32) {
-    if (keyIsUint32) {
-        return Nan::New<Integer>(*((uint32_t*)key.mv_data));
-    }
-    else {
-        return valToString(key);
-    }
+    return valToBinary(key);
 }
 
 Handle<Value> valToString(MDB_val &data) {

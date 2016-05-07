@@ -146,10 +146,14 @@ Nan::NAN_METHOD_RETURN_TYPE TxnWrap::getCommon(Nan::NAN_METHOD_ARGS_TYPE info, H
     }
 
     MDB_val key, data;
-    void (*freeKey)(MDB_val&) = argToKey(info[1], key, dw->keyIsUint32);
-    if (!freeKey) {
-        return;
+
+    if (!node::Buffer::HasInstance(info[1])) {
+        return Nan::ThrowError("Invalid arguments: key must be a Buffer.");
     }
+
+    Local<Object> obj = info[1]->ToObject();
+    key.mv_data = node::Buffer::Data(obj);
+    key.mv_size = node::Buffer::Length(obj);
 
     int rc = mdb_get(tw->txn, dw->dbi, &key, &data);
     freeKey(key);
@@ -194,15 +198,17 @@ Nan::NAN_METHOD_RETURN_TYPE TxnWrap::putCommon(Nan::NAN_METHOD_ARGS_TYPE info, v
     int flags = 0;
     MDB_val key, data;
 
-    void (*freeKey)(MDB_val&) = argToKey(info[1], key, dw->keyIsUint32);
-    if (!freeKey) {
-        return;
+    if (!node::Buffer::HasInstance(info[1])) {
+        return Nan::ThrowError("Invalid arguments: key must be a Buffer.");
     }
+
+    Local<Object> obj = info[1]->ToObject();
+    key.mv_data = node::Buffer::Data(obj);
+    key.mv_size = node::Buffer::Length(obj);
 
     fillFunc(info, data);
 
     int rc = mdb_put(tw->txn, dw->dbi, &key, &data, flags);
-    freeKey(key);
     freeData(data);
 
     if (rc != 0) {
@@ -260,13 +266,16 @@ NAN_METHOD(TxnWrap::del) {
     }
 
     MDB_val key;
-    void (*freeKey)(MDB_val&) = argToKey(info[1], key, dw->keyIsUint32);
-    if (!freeKey) {
-        return;
+
+    if (!node::Buffer::HasInstance(info[1])) {
+        return Nan::ThrowError("Invalid arguments: key must be a Buffer.");
     }
 
+    Local<Object> obj = info[1]->ToObject();
+    key.mv_data = node::Buffer::Data(obj);
+    key.mv_size = node::Buffer::Length(obj);
+
     int rc = mdb_del(tw->txn, dw->dbi, &key, nullptr);
-    freeKey(key);
 
     if (rc != 0) {
         return Nan::ThrowError(mdb_strerror(rc));
