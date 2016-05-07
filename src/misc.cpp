@@ -47,7 +47,8 @@ void setFlagFromValue(int *flags, int flag, const char *name, bool defaultValue,
 
 argtokey_callback_t argToKey(const Handle<Value> &val, MDB_val &key, bool keyIsUint32) {
     if (!node::Buffer::HasInstance(val)) {
-        return Nan::ThrowError("Invalid arguments: key must be a Buffer.");
+        Nan::ThrowError("Invalid arguments: key must be a Buffer.");
+        return nullptr;
     }
 
     Local<Object> obj = val->ToObject();
