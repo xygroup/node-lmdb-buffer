@@ -156,7 +156,6 @@ Nan::NAN_METHOD_RETURN_TYPE TxnWrap::getCommon(Nan::NAN_METHOD_ARGS_TYPE info, H
     key.mv_size = node::Buffer::Length(obj);
 
     int rc = mdb_get(tw->txn, dw->dbi, &key, &data);
-    freeKey(key);
 
     if (rc == MDB_NOTFOUND) {
         return info.GetReturnValue().Set(Nan::Null());
